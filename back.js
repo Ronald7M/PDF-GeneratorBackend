@@ -13,15 +13,18 @@ const upload = multer({ storage: storage });
 app.use(express.json());
 
 app.get("/test",  async (req, res) => {
-    return res.status(200).send("Salut!!!"+process.env.EMAIL_USER+" "+process.env.EMAIL_PASS);
+    return res.status(200).send("Salut!!!");
 
   });
 
 
 
 app.post("/send-email", upload.single("pdf"), async (req, res) => {
-  const { email, subject, message } = req.body; 
+  const { email, subject, message, password } = req.body; 
   const pdfBuffer = req.file ? req.file.buffer : null;
+  if(password!==process.env.FORM_PASS){
+    return res.status(400).send("Password incorect!!!");
+  }
 
   if (!pdfBuffer) {
     return res.status(400).send("No PDF file uploaded");
