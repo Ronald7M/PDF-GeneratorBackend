@@ -1,0 +1,44 @@
+name: CI/CD Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Build Docker image
+      - name: Build Docker Image
+        run: |
+          docker build -t backend-chahca .
+
+      # Save Docker image as a tarball
+      - name: Save Docker Image
+        run: |
+          docker save backend-chahca | gzip > backend-chahca.tar.gz
+
+      # Upload Docker image to the server
+      - name: Upload Docker Image to Server
+        run: |
+          mkdir -p ~/.ssh
+          echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+          sudo apt-get update && sudo apt-get install -y sshpass
+          sshpass -p "${{ secrets.SERVER_PASS }}" scp backend-chahca.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/
+
+      # Deploy the Docker container on the server
+      - name: Deploy Docker Container
+        run: |
+          sshpass -p "${{ secrets.SERVER_PASS }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
+            docker load < /tmp/backend-chahca.tar.gz &&
+            docker stop backend-chahca || true &&
+            docker rm backend-chahca || true &&
+            docker run -d --name backend-chahca -p 5000:3000 backend-chahca &&
+            rm /tmp/backend-chahca.tar.gz
+          "
