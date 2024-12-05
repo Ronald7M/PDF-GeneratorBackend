@@ -4,6 +4,15 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to deploy'
+        required: true
+        default: 'main'
+      message:
+        description: 'Custom message for deployment'
+        required: false
 
 jobs:
   build-and-deploy:
@@ -39,6 +48,6 @@ jobs:
             docker load < /tmp/backend-chahca.tar.gz &&
             docker stop backend-chahca || true &&
             docker rm backend-chahca || true &&
-            docker run -d --name backend-chahca -p 5000:3000 backend-chahca &&
+            docker run -d --name backend-chahca -e EMAIL_USER=${{ secrets.EMAIL_USER }} -e EMAIL_PASS=${{ secrets.EMAIL_PASS }} -p 5000:3000 backend-chahca &&
             rm /tmp/backend-chahca.tar.gz
           "
