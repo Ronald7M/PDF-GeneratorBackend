@@ -15,7 +15,7 @@ app.use(express.json());
 app.post("/send-email",  async (req, res) => {
     return res.status(200).send("Salut!!!");
 
-  }
+  });
 
 
 
