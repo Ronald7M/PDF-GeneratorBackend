@@ -39,6 +39,9 @@ jobs:
             docker load < /tmp/backend-chacha.tar.gz &&
             docker stop backend-chacha || true &&
             docker rm backend-chacha || true &&
-            EMAIL_USER='${{ secrets.EMAIL_USER }}' EMAIL_PASS='${{ secrets.EMAIL_PASS }}' docker run -d --name backend-chacha -e EMAIL_USER=\$EMAIL_USER -e EMAIL_PASS=\$EMAIL_PASS -p 5000:3000 backend-chacha &&
+            docker run -d --name backend-chacha \
+              -e EMAIL_USER=${{ secrets.EMAIL_USER }} \
+              -e EMAIL_PASS=${{ secrets.EMAIL_PASS }} \
+              -p 5000:3000 backend-chacha &&
             rm /tmp/backend-chacha.tar.gz
           "
