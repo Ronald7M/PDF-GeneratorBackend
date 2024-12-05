@@ -4,15 +4,6 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to deploy'
-        required: true
-        default: 'main'
-      message:
-        description: 'Custom message for deployment'
-        required: false
 
 jobs:
   build-and-deploy:
@@ -26,12 +17,12 @@ jobs:
       # Build Docker image
       - name: Build Docker Image
         run: |
-          docker build -t backend-chahca .
+          docker build -t backend-chacha .
 
       # Save Docker image as a tarball
       - name: Save Docker Image
         run: |
-          docker save backend-chahca | gzip > backend-chahca.tar.gz
+          docker save backend-chacha | gzip > backend-chacha.tar.gz
 
       # Upload Docker image to the server
       - name: Upload Docker Image to Server
@@ -39,15 +30,15 @@ jobs:
           mkdir -p ~/.ssh
           echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
           sudo apt-get update && sudo apt-get install -y sshpass
-          sshpass -p "${{ secrets.SERVER_PASS }}" scp backend-chahca.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/
+          sshpass -p "${{ secrets.SERVER_PASS }}" scp backend-chacha.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/
 
       # Deploy the Docker container on the server
       - name: Deploy Docker Container
         run: |
           sshpass -p "${{ secrets.SERVER_PASS }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "
-            docker load < /tmp/backend-chahca.tar.gz &&
-            docker stop backend-chahca || true &&
-            docker rm backend-chahca || true &&
-            docker run -d --name backend-chahca -e EMAIL_USER=${{ secrets.EMAIL_USER }} -e EMAIL_PASS=${{ secrets.EMAIL_PASS }} -p 5000:3000 backend-chahca &&
-            rm /tmp/backend-chahca.tar.gz
+            docker load < /tmp/backend-chacha.tar.gz &&
+            docker stop backend-chacha || true &&
+            docker rm backend-chacha || true &&
+            docker run -d --name backend-chacha -e EMAIL_USER=${{ secrets.EMAIL_USER }} -e EMAIL_PASS=${{ secrets.EMAIL_PASS }} -p 5000:3000 backend-chacha &&
+            rm /tmp/backend-chacha.tar.gz
           "
