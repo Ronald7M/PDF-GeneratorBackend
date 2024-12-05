@@ -40,8 +40,8 @@ jobs:
             docker stop backend-chacha || true &&
             docker rm backend-chacha || true &&
             docker run -d --name backend-chacha \
-              -e EMAIL_USER=${{ secrets.EMAIL_USER }} \
-              -e EMAIL_PASS=${{ secrets.EMAIL_PASS }} \
+              -e EMAIL_USER="${{ secrets.EMAIL_USER }}" \
+              -e EMAIL_PASS="${{ secrets.EMAIL_PASS }}" \
               -p 5000:3000 backend-chacha &&
             rm /tmp/backend-chacha.tar.gz
           "
