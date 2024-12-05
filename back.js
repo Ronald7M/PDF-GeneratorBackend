@@ -12,6 +12,12 @@ const upload = multer({ storage: storage });
 
 app.use(express.json());
 
+app.post("/send-email",  async (req, res) => {
+    return res.status(200).send("Salut!!!");
+
+  }
+
+
 
 app.post("/send-email", upload.single("pdf"), async (req, res) => {
   const { email, subject, message } = req.body; 
