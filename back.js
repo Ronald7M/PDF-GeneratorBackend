@@ -12,7 +12,7 @@ const upload = multer({ storage: storage });
 
 app.use(express.json());
 
-app.post("/send-email",  async (req, res) => {
+app.get("/test",  async (req, res) => {
     return res.status(200).send("Salut!!!");
 
   });
