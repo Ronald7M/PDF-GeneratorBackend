@@ -6,6 +6,11 @@ const sequelize = new Sequelize('mydatabase',  process.env.DB_USER,  process.env
     dialect: 'mysql',
 });
 
+console.log(process.env.DB_USER)
+console.log(process.env.DB_PASS)
+console.log("da")
+
+
 
 sequelize.authenticate()
     .then(() => console.log('Conexiune la baza de date reușită!'))
