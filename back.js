@@ -96,9 +96,9 @@ app.post("/send-email", upload.single("pdf"), async (req, res) => {
   const formData = JSON.parse(req.body.formData);
 
   const pdfBuffer = req.file ? req.file.buffer : null;
-  // if(password!==process.env.FORM_PASS){
-  //   return res.status(400).send("Password incorect!!!");
-  // }
+  if(password!==process.env.FORM_PASS){
+    return res.status(400).send("Password incorect!!!");
+  }
 
   if (!pdfBuffer) {
     return res.status(400).send("No PDF file uploaded");
@@ -198,7 +198,7 @@ app.post('/upload-invoice', upload.single('pdf'), async (req, res) => {
     }
 
     // Creează o nouă înregistrare în tabelă
-    const invoice = await Table.create({
+    const invoice = await Invoice.create({
       name: req.body.name, // Numele ar trebui să fie trimis în body
       pdf: req.file.buffer, // Salvează fișierul PDF ca BLOB
       date: req.body.date, // Data poate fi trimisă în body
