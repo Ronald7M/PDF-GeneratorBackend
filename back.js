@@ -191,6 +191,26 @@ app.get('/invoice/:id', async (req, res) => {
   }
 });
 
+app.post('/upload-invoice', upload.single('pdf'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send('Nu a fost încărcat niciun fișier');
+    }
+
+    // Creează o nouă înregistrare în tabelă
+    const invoice = await Table.create({
+      name: req.body.name, // Numele ar trebui să fie trimis în body
+      pdf: req.file.buffer, // Salvează fișierul PDF ca BLOB
+      date: req.body.date, // Data poate fi trimisă în body
+    });
+
+    res.status(200).json({ message: 'Factura a fost încărcată cu succes', invoice });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Eroare la încărcarea facturii');
+  }
+});
+
 
 
 app.listen(3000, () => console.log("Server is running on port 3000"));
