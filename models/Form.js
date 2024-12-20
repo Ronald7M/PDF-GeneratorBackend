@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../configDataBase'); // Importă conexiunea Sequelize
+const sequelize = require('../configDataBase'); 
 
 const Form = sequelize.define('Form', {
     id: {
@@ -29,22 +29,6 @@ const Form = sequelize.define('Form', {
         allowNull: false,
     },
     ust: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    noViolin: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    noViola: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    noCello: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    noKontrabass: {
         type: DataTypes.STRING,
         allowNull: false,
     },

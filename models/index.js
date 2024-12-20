@@ -2,64 +2,68 @@ const sequelize = require('../configDataBase');
 
 
 const Form = require('./Form');
-const Row = require('./Row');
+const Invoice = require('./Invoice');
 
 
-Form.hasMany(Row, { foreignKey: 'formId', as: 'row' });
-Row.belongsTo(Form, { foreignKey: 'formId', as: 'form' });
+
+
+
+async function addInvoice(pdfBuffer, name) {
+    const currentDate = new Date();
+    const formattedDateTime = currentDate.toLocaleString();
+    console.log(currentDate);
+    try {
+        const tableRecord = await Invoice.create({
+          name: name,  
+          pdf: pdfBuffer, 
+          date:formattedDateTime,
+        });
+    
+        return {success:true} 
+      } catch (error) {
+        return {success:false,error} 
+      }
+}
 
 
 async function addForm(formData) {
-    const t = await sequelize.transaction(); // Începe o tranzacție pentru a asigura consistența datelor
-
     try {
-        // Adăugăm un nou formular în tabelul 'forms'
-        const form = await Form.create({
-            name: formData.name,
-            email: formData.email,
-            data: formData.data,
-            noInvoice: formData.noInvoice,
-            info: formData.info,
-            ust: formData.ust,
-            noViolin: formData.noViolin,
-            noViola: formData.noViola,
-            noCello: formData.noCello,
-            noKontrabass: formData.noKontrabass,
-        }, { transaction: t });
+        // Căutăm un formular cu același email
+        const existingForm = await Form.findOne({
+            where: { email: formData.email }
+        });
 
-        // Adăugăm rândurile (rows) asociate formularului în tabelul 'rows'
-        // Verificăm dacă există 'rows' în formData și le adăugăm
-        if (formData.rows && Array.isArray(formData.rows)) {
-            for (const row of formData.rows) {
-                await Row.create({
-                    formId: form.id, // Se leagă rândul de formularul adăugat
-                    item: row.item,
-                    quantity: row.quantity,
-                    price: row.price,
-                }, { transaction: t });
-            }
+        if (existingForm) {
+            // Dacă există un formular cu acest email, facem update
+            await existingForm.update({
+                name: formData.name,
+                data: formData.data,
+                noInvoice: formData.numberInvoice,
+                info: formData.info,
+                ust: formData.ust
+            });
+
+            return { success: true, message: "Formular actualizat cu succes" };
+        } else {
+            // Dacă nu există, creăm unul nou
+            const form = await Form.create({
+                name: formData.name,
+                email: formData.email,
+                data: formData.data,
+                noInvoice: formData.numberInvoice,
+                info: formData.info,
+                ust: formData.ust
+            });
+
+            return { success: true, message: "Formular adaugat cu succes" };
         }
-
-        // Dacă totul a fost adăugat cu succes, comite tranzacția
-        await t.commit();
-        console.log('Formularul și rândurile au fost adăugate cu succes!');
-        return form; // Returnează formularul adăugat
     } catch (error) {
-        // Dacă apare o eroare, se face rollback la tranzacție
-        await t.rollback();
-        console.error('Eroare la adăugarea formularului:', error);
-        throw error; // Aruncă eroarea pentru a fi gestionată în altă parte
+        return { success: false, message: "Formularul nu a fost adaugat sau actualizat", err: error };
     }
 }
-
 async function getAllForms() {
     try {
-        const forms = await Form.findAll({
-            include: [{
-                model: Row,
-                as: 'row', // Include rândurile asociate formularului
-            }],
-        });
+        const forms = await Form.findAll();
         return forms;
     } catch (error) {
         console.error('Eroare la citirea formularelor:', error);
@@ -67,26 +71,18 @@ async function getAllForms() {
     }
 }
 
-async function getFormById(formId) {
+async function getFormByEmail(email) {
     try {
-        const form = await Form.findOne({
-            where: { id: formId }, // Căutăm formularul după ID
-            include: [{
-                model: Row,
-                as: 'row', // Include rândurile asociate formularului
-            }],
-        });
-
-        if (!form) {
-            throw new Error('Formularul nu a fost găsit!');
-        }
-
-        return form;
+      const form = await Form.findOne({
+        where: { email: email }
+    });
+      return form;
     } catch (error) {
-        console.error('Eroare la citirea formularului:', error);
-        throw error;
+      console.error("Eroare la căutarea formularului:", error);
+      throw error;
     }
-}
+  }
+
 
 
 sequelize.sync({ force: false }) 
@@ -96,4 +92,4 @@ sequelize.sync({ force: false })
 
 
 
-module.exports = { Form, Row, addForm ,getAllForms, getFormById };
+module.exports = {Invoice,Form, addForm ,getAllForms, getFormByEmail,addInvoice };
