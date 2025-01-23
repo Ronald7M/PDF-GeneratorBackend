@@ -9,9 +9,17 @@ const Invoice = require('./Invoice');
 
 
 async function addInvoice(pdfBuffer, name) {
-    const currentDate = new Date();
-    const formattedDateTime = currentDate.toLocaleString();
-    console.log(currentDate);
+const currentDate = new Date();
+const formattedDateTime = currentDate.toLocaleString('ro-RO', {
+    timeZone: 'Europe/Bucharest',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false 
+});
     try {
         const tableRecord = await Invoice.create({
           name: name,  
